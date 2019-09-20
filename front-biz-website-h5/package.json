@@ -1,0 +1,60 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "玩吧是北京默契破冰科技有限公司官方推出的一款拥有超人气多人互动小游戏的娱乐社交APP，主打产品有双人游戏，阿瓦隆，狼人杀，谁是卧底，你画我猜等。玩吧APP将欢乐的小游戏与社区互动相结合，集推理、竞技、休闲、社交于一体，专为年轻人打造的制造快乐传递快乐的平台，玩吧小游戏，交友小神器！",
+  "author": "汪娇娇",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lintfix": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "stylelint": "stylelint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,vue,html}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "**/*.{vue,html,css,less,sass,scss}": [
+      "stylelint --fix",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.6.0",
+    "@nuxtjs/proxy": "^1.3.3",
+    "axios": "^0.19.0",
+    "cross-env": "^6.0.0",
+    "nuxt": "^2.9.2",
+    "vue-lazyload": "^1.3.3"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^3.0.0",
+    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^5.2.3",
+    "fibers": "^4.0.1",
+    "husky": "^3.0.5",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^9.2.5",
+    "stylelint": "^11.0.0",
+    "stylelint-config-standard": "^19.0.0",
+    "stylelint-order": "^3.1.1"
+  }
+}
