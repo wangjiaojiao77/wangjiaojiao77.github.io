@@ -1,51 +1,32 @@
-public function go() {
-    // webhook上设置的secret
+<?php
+    $target = '/Users/jojo/wanba/jojo/blog'; // 生产环境 web 目录
+    //密钥
     $secret = "jojo";
-
-    // 校验发送位置，正确的情况下自动拉取代码，实现自动部署
+    //获取 GitHub 发送的内容
+    $json = file_get_contents('php://input');
+    $content = json_decode($json, true);
+    //github 发送过来的签名
     $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'];
-    if ($signature) {
-        $hash = "sha1=".hash_hmac('sha1', file_get_contents("php://input"), $secret);
-        if (strcmp($signature, $hash) == 0) {
-            // sign sucess
-
-            set_time_limit(3 * 60); //最大过期时间3分钟
-            $shellPath = "/home/www/T-Blog";
-            $cmd = "cd $shellPath && sudo git pull && sudo /bin/bash CI.sh";
-            $res = $this -> doShell($cmd);
-            print_r($res); // 主要打印结果给github记录查看，自己测试时查看
-
-        }
+    if (!$signature) {
+        return http_response_code(404);
     }
-}
-
-/*
- * 执行shell命令
- */
-protected function doShell($cmd, $cwd = null) {
-    $descriptorspec = array(
-        0 => array("pipe", "r"), // stdin
-        1 => array("pipe", "w"), // stdout
-        2 => array("pipe", "w"), // stderr
-    );
-    $proc = proc_open($cmd, $descriptorspec, $pipes, $cwd, null);
-    // $proc为false，表明命令执行失败
-    if ($proc == false) {
-        return false;
-        // do sth with HTTP response
-        print_r("命令执行出错！");
+    list($algo, $hash) = explode('=', $signature, 2);
+    //计算签名
+    $payloadHash = hash_hmac($algo, $json, $secret);
+    // 判断签名是否匹配
+    if ($hash === $payloadHash) {
+        $cmd = "bash auto_build.sh";
+        $res = shell_exec($cmd);
+        $res_log = 'Success:'.PHP_EOL;
+        $res_log .= $content['head_commit']['author']['name'] . ' 在' . date('Y-m-d H:i:s') . '向' . $content['repository']['name'] . '项目的' . $content['ref'] . '分支 push 了' . count($content['commits']) . '个 commit：' . PHP_EOL;
+        $res_log .= $res.PHP_EOL;
+        $res_log .= '======================================================================='.PHP_EOL;
+        echo $res_log;
     } else {
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-        $status = proc_close($proc); // 释放proc
+        $res_log  = 'Error:'.PHP_EOL;
+        $res_log .= $content['head_commit']['author']['name'] . ' 在' . date('Y-m-d H:i:s') . '向' . $content['repository']['name'] . '项目的' . $content['ref'] . '分支 push 了' . count($content['commits']) . '个 commit：' . PHP_EOL;
+        $res_log .= '密钥不正确不能 pull'.PHP_EOL;
+        $res_log .= '======================================================================='.PHP_EOL;
+        echo $res_log;
     }
-    $data = array(
-        'stdout' => $stdout, // 标准输出
-        'stderr' => $stderr, // 错误输出
-        'retval' => $status, // 返回值
-    );
-
-    return $data;
-}
+?>
